@@ -48,6 +48,7 @@ public class LoggingPacketHandler implements BedrockPacketHandler {
     }
 
     boolean defaultHandler(BedrockPacket packet) {
+        System.out.println(packet);
         connector.getLogger().debug("Handled packet: " + packet.getClass().getSimpleName());
         return false;
     }

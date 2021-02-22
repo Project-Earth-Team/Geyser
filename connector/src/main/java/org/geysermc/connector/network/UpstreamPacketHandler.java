@@ -47,24 +47,15 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
     }
 
     private boolean translateAndDefault(BedrockPacket packet) {
+        System.out.println(packet);
         return PacketTranslatorRegistry.BEDROCK_TRANSLATOR.translate(packet.getClass(), packet, session);
     }
 
     @Override
     public boolean handle(LoginPacket loginPacket) {
+        System.out.println(loginPacket);
         BedrockPacketCodec packetCodec = BedrockProtocol.getBedrockCodec(loginPacket.getProtocolVersion());
-        if (packetCodec == null) {
-            if (loginPacket.getProtocolVersion() > BedrockProtocol.DEFAULT_BEDROCK_CODEC.getProtocolVersion()) {
-                // Too early to determine session locale
-                session.getConnector().getLogger().info(LanguageUtils.getLocaleStringLog("geyser.network.outdated.server", BedrockProtocol.DEFAULT_BEDROCK_CODEC.getMinecraftVersion()));
-                session.disconnect(LanguageUtils.getLocaleStringLog("geyser.network.outdated.server", BedrockProtocol.DEFAULT_BEDROCK_CODEC.getMinecraftVersion()));
-                return true;
-            } else if (loginPacket.getProtocolVersion() < BedrockProtocol.DEFAULT_BEDROCK_CODEC.getProtocolVersion()) {
-                session.getConnector().getLogger().info(LanguageUtils.getLocaleStringLog("geyser.network.outdated.client", BedrockProtocol.DEFAULT_BEDROCK_CODEC.getMinecraftVersion()));
-                session.disconnect(LanguageUtils.getLocaleStringLog("geyser.network.outdated.client", BedrockProtocol.DEFAULT_BEDROCK_CODEC.getMinecraftVersion()));
-                return true;
-            }
-        }
+        packetCodec = BedrockProtocol.DEFAULT_BEDROCK_CODEC;
 
         session.getUpstream().getSession().setPacketCodec(packetCodec);
 
@@ -82,12 +73,13 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
                             "", "", "", false, false));
         }
         resourcePacksInfo.setForcedToAccept(GeyserConnector.getInstance().getConfig().isForceResourcePacks());
-        session.sendUpstreamPacket(resourcePacksInfo);
+        session.connect(connector.getRemoteServer());
         return true;
     }
 
     @Override
     public boolean handle(ResourcePackClientResponsePacket packet) {
+        System.out.println(packet);
         switch (packet.getStatus()) {
             case COMPLETED:
                 session.connect(connector.getRemoteServer());
@@ -139,6 +131,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
 
     @Override
     public boolean handle(ModalFormResponsePacket packet) {
+        System.out.println(packet);
         switch (packet.getFormId()) {
             case AdvancementsCache.ADVANCEMENT_INFO_FORM_ID:
                 return session.getAdvancementsCache().handleInfoForm(packet.getFormData());
@@ -177,6 +170,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
 
     @Override
     public boolean handle(SetLocalPlayerAsInitializedPacket packet) {
+        System.out.println(packet);
         LanguageUtils.loadGeyserLocale(session.getLocale());
 
         if (!session.isLoggedIn() && !session.isLoggingIn() && session.getConnector().getAuthType() == AuthType.ONLINE) {
@@ -191,6 +185,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
 
     @Override
     public boolean handle(MovePlayerPacket packet) {
+        System.out.println(packet);
         if (session.isLoggingIn()) {
             SetTitlePacket titlePacket = new SetTitlePacket();
             titlePacket.setType(SetTitlePacket.Type.ACTIONBAR);
@@ -206,11 +201,13 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
 
     @Override
     boolean defaultHandler(BedrockPacket packet) {
+        System.out.println(packet);
         return translateAndDefault(packet);
     }
 
     @Override
     public boolean handle(ResourcePackChunkRequestPacket packet) {
+        System.out.println(packet);
         ResourcePackChunkDataPacket data = new ResourcePackChunkDataPacket();
         ResourcePack pack = ResourcePack.PACKS.get(packet.getPackId().toString());
 

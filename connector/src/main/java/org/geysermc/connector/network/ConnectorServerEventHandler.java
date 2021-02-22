@@ -94,7 +94,7 @@ public class ConnectorServerEventHandler implements BedrockServerEventHandler {
 
         BedrockPong pong = new BedrockPong();
         pong.setEdition("MCPE");
-        pong.setGameType("Survival"); // Can only be Survival or Creative as of 1.16.210.59
+        pong.setGameType("Encounter"); // Buildplate or Encounter (Adventures)
         pong.setNintendoLimited(false);
         pong.setProtocolVersion(BedrockProtocol.DEFAULT_BEDROCK_CODEC.getProtocolVersion());
         pong.setVersion(BedrockProtocol.DEFAULT_BEDROCK_CODEC.getMinecraftVersion()); // Required to not be empty as of 1.16.210.59. Can only contain . and numbers.
@@ -166,6 +166,7 @@ public class ConnectorServerEventHandler implements BedrockServerEventHandler {
 
     @Override
     public void onUnhandledDatagram(ChannelHandlerContext ctx, DatagramPacket packet) {
+        System.out.println(packet);
         new QueryPacketHandler(connector, packet.sender(), packet.content());
     }
 }
